@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using AStar;
 using UnityEngine.Pool;
 
 
-namespace AStar
+namespace Module.AStar
 {
     public class AStar<T> where T : IPathNode<T>
     {
