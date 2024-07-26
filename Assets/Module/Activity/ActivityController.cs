@@ -9,20 +9,20 @@ namespace Module.Activity
         /// <summary>
         /// 在活动即将变为idle的时候调用一次
         /// </summary>
-        /// <param name="container"></param>
-        void OnBecomingIdle(ActivityContainer container);
+        /// <param name="controller"></param>
+        void OnBecomingIdle(ActivityController controller);
 
         /// <summary>
         /// idle的时候每帧调用
         /// </summary>
-        /// <param name="container"></param>
-        void TickIdle(ActivityContainer container);
+        /// <param name="controller"></param>
+        void TickIdle(ActivityController controller);
     }
     
     /// <summary>
-    /// 活动的容器
+    /// 活动控制器
     /// </summary>
-    public class ActivityContainer : IDisposable 
+    public class ActivityController : IDisposable 
     {
         private Activity currentActivity;
         public Activity CurrentActivity { 
@@ -42,7 +42,7 @@ namespace Module.Activity
         /// </summary>
         /// <param name="creationActivity">初始化需要创建的活动</param>
         /// <param name="owner"></param>
-        public ActivityContainer(List<Activity> creationActivity = null,IActivityOwner owner = null)
+        public ActivityController(List<Activity> creationActivity = null,IActivityOwner owner = null)
         {
             this.Owner = owner;
             if (creationActivity != null)

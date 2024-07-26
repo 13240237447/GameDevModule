@@ -8,12 +8,12 @@ namespace ModuleTest.Activity
 {
     public class ActivityTest : MonoBehaviour
     {
-        private ActivityContainer activityContainer;
+        private ActivityController activityController;
 
         private bool isActivityStop;
         private void Awake()
         {
-            activityContainer = new ActivityContainer(new List<Module.Activity.Activity>()
+            activityController = new ActivityController(new List<Module.Activity.Activity>()
             {
                 new CallFunc(() => { Debug.Log("Activity Start"); },false),
                 new Wait(3,false),
@@ -23,7 +23,7 @@ namespace ModuleTest.Activity
                 new CallFunc(() => { Debug.Log("Activity End"); },false),
             });
 
-            Debug.Log( activityContainer.CurrentActivity.PrintActivityTree(activityContainer));
+            Debug.Log( activityController.CurrentActivity.PrintActivityTree(activityController));
         }
 
         private void Update()
@@ -34,9 +34,9 @@ namespace ModuleTest.Activity
             }
             else if (Input.GetKeyDown(KeyCode.F))
             {
-                activityContainer.CancelActivity();
+                activityController.CancelActivity();
             }
-            activityContainer.Tick();
+            activityController.Tick();
         }
         
     }

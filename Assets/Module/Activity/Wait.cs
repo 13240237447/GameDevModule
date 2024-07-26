@@ -21,7 +21,7 @@ namespace Module.Activity
             IsInterruptible = canInterruptible;
         }
 
-        protected override bool Tick(ActivityContainer container)
+        protected override bool Tick(ActivityController controller)
         {
             if (IsCanceling)
             {
@@ -47,7 +47,7 @@ namespace Module.Activity
             IsInterruptible = canInterruptible;
         }
 
-        protected override bool Tick(ActivityContainer container)
+        protected override bool Tick(ActivityController controller)
         {
             if (IsCanceling)
             {

@@ -55,31 +55,31 @@ namespace Module.Activity
         bool firstRunCompleted;
         bool lastRun;
 
-        internal Activity TickOuter(ActivityContainer container)
+        internal Activity TickOuter(ActivityController controller)
         {
             if (State == ActivityState.Done)
-                throw new InvalidOperationException($"ActivityOwner {container} 尝试Tick一个已经完成的活动 {GetType()} ");
+                throw new InvalidOperationException($"ActivityOwner {controller} 尝试Tick一个已经完成的活动 {GetType()} ");
 
             if (State == ActivityState.Queued)
             {
-                OnFirstRun(container);
+                OnFirstRun(controller);
                 firstRunCompleted = true;
                 State = ActivityState.Active;
             }
 
             if (!firstRunCompleted)
             {
-                throw new InvalidOperationException($"ActivityOwner {container} 尝试在OnFirstRun之前Tick活动 {GetType()}");
+                throw new InvalidOperationException($"ActivityOwner {controller} 尝试在OnFirstRun之前Tick活动 {GetType()}");
             }
 
             if (ChildHasPriority)
             {
-                lastRun = TickChild(container) && (finishing || Tick(container));
+                lastRun = TickChild(controller) && (finishing || Tick(controller));
                 finishing |= lastRun;
             }
             else
             {
-                lastRun = Tick(container);
+                lastRun = Tick(controller);
             }
 
             var ca = ChildActivity;
@@ -87,27 +87,27 @@ namespace Module.Activity
             {
                 if (ChildHasPriority)
                 {
-                    lastRun = TickChild(container) && finishing;
+                    lastRun = TickChild(controller) && finishing;
                 }
                 else
                 {
-                    TickChild(container);
+                    TickChild(controller);
                 }
             }
 
             if (lastRun)
             {
                 State = ActivityState.Done;
-                OnLastRun(container);
+                OnLastRun(controller);
                 return NextActivity;
             }
 
             return this;
         }
 
-        protected bool TickChild(ActivityContainer container)
+        protected bool TickChild(ActivityController controller)
         {
-            ChildActivity = container.RunActivity(ChildActivity);
+            ChildActivity = controller.RunActivity(ChildActivity);
             return ChildActivity == null;
         }
         
@@ -115,8 +115,8 @@ namespace Module.Activity
         /// <summary>
         /// 在第一个Tick之前立即执行一次
         /// </summary>
-        /// <param name="container"></param>
-        protected virtual void OnFirstRun(ActivityContainer container) { }
+        /// <param name="controller"></param>
+        protected virtual void OnFirstRun(ActivityController controller) { }
 
         
         /// <summary>
@@ -128,7 +128,7 @@ namespace Module.Activity
         ///
         /// 入队一个或多个活动并且立即返回完成是有效的，会使活动立即完成
         /// </summary>
-        protected virtual bool Tick(ActivityContainer container)
+        protected virtual bool Tick(ActivityController controller)
         {
             return true;
         }
@@ -136,20 +136,20 @@ namespace Module.Activity
         /// <summary>
         /// 在最后一次Tick完成之后立即执行一次
         /// </summary>
-        protected virtual void OnLastRun(ActivityContainer container) { }
+        protected virtual void OnLastRun(ActivityController controller) { }
      
         /// <summary>
         /// 当拥有者被销毁时调用一次
         /// </summary>
-        protected virtual void OnOwnerDispose(ActivityContainer container) { }
+        protected virtual void OnOwnerDispose(ActivityController controller) { }
         
-        internal void OnOwnerDisposeOuter(ActivityContainer container)
+        internal void OnOwnerDisposeOuter(ActivityController controller)
         {
-            ChildActivity?.OnOwnerDisposeOuter(container);
-            OnOwnerDispose(container);
+            ChildActivity?.OnOwnerDisposeOuter(controller);
+            OnOwnerDispose(controller);
         }
 
-        public virtual void Cancel(ActivityContainer container, bool keepQueue = false)
+        public virtual void Cancel(ActivityController controller, bool keepQueue = false)
         {
             if (!keepQueue)
             {
@@ -161,7 +161,7 @@ namespace Module.Activity
                 return;
             }
             
-            ChildActivity?.Cancel(container);
+            ChildActivity?.Cancel(controller);
 
             State = State == ActivityState.Queued ? ActivityState.Done : ActivityState.Canceling;
         }
@@ -197,11 +197,11 @@ namespace Module.Activity
         }
         
         
-        public string PrintActivityTree(ActivityContainer container, Activity origin = null, int level = 0)
+        public string PrintActivityTree(ActivityController controller, Activity origin = null, int level = 0)
         {
             if (origin == null)
             {
-                return container.CurrentActivity.PrintActivityTree(container,this);
+                return controller.CurrentActivity.PrintActivityTree(controller,this);
             }
             else
             {
@@ -215,12 +215,12 @@ namespace Module.Activity
                 sb.AppendLine($"{GetType().ToString().Split('.').Last()}");
                 if (ChildActivity != null)
                 {
-                    sb.Append(ChildActivity.PrintActivityTree(container, origin, level + 1));
+                    sb.Append(ChildActivity.PrintActivityTree(controller, origin, level + 1));
                 }
 
                 if (NextActivity != null)
                 {
-                    sb.Append(NextActivity.PrintActivityTree(container, origin, level));
+                    sb.Append(NextActivity.PrintActivityTree(controller, origin, level));
                 }
                 return sb.ToString();
             }

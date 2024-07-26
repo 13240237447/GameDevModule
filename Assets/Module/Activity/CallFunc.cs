@@ -13,7 +13,7 @@ namespace Module.Activity
             IsInterruptible = interruptible;
         }
 
-        protected override bool Tick(ActivityContainer container)
+        protected override bool Tick(ActivityController controller)
         {
             a?.Invoke();
             return true;
