@@ -103,6 +103,23 @@ namespace Module.AStar
             return FindPathInner();
         }
 
+        public List<T> FindPath(T start, IEnumerable<T> targets, Func<T, bool> targetPredicate = null)
+        {
+            List<T> minPath = null;
+            int minScore = 0;
+            foreach (var target in targets)
+            {
+                var path = FindPath(start, target, targetPredicate);
+                if (minPath == null || NodeCache[target].FScore < minScore)
+                {
+                    minPath = path;
+                    minScore = NodeCache[target].FScore;
+                }
+            }
+            return minPath;
+        }
+        
+
         void AddInitialNode(T node)
         {
             var startNode = WrapNodePool.Get();

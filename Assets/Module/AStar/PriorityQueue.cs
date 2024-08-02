@@ -86,7 +86,6 @@ namespace AStar
 		
 		public void Clear()
 		{
-			items.Clear();
 			level = 0;
 			index = 0;
 		}
