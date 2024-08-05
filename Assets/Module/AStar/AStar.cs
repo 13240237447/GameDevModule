@@ -57,7 +57,7 @@ namespace Module.AStar
             }
         }
 
-        private readonly ObjectPool<WrapNode> WrapNodePool =
+        private static ObjectPool<WrapNode> WrapNodePool =
             new ObjectPool<WrapNode>(() => new WrapNode(), (s) => s.Clean());
 
         /// <summary>
