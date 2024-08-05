@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
 
-namespace AStar
+namespace Module.AStar
 {
     public interface IPathNode<T>
     {
