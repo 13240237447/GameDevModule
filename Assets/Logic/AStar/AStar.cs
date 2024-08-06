@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Logic.Primitives;
 using UnityEngine.Pool;
 
 
-namespace Module.AStar
+namespace Logic.AStar
 {
     public class AStar<T> where T : IPathNode<T>
     {

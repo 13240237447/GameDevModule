@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Module.Activity;
+using Logic.Activity;
 using UnityEngine;
 
 
@@ -13,7 +13,7 @@ namespace ModuleTest.Activity
         private bool isActivityStop;
         private void Awake()
         {
-            activityController = new ActivityController(new List<Module.Activity.Activity>()
+            activityController = new ActivityController(new List<Logic.Activity.Activity>()
             {
                 new CallFunc(() => { Debug.Log("Activity Start"); },false),
                 new Wait(3,false),

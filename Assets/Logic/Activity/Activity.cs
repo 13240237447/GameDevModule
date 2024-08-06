@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text;
 
 
-namespace Module.Activity
+namespace Logic.Activity
 {
     public interface IActivityInterface
     {

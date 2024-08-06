@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 
-namespace Module.Activity
+namespace Logic.Activity
 {
     public class Wait : Activity
     {

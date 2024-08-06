@@ -1,7 +1,7 @@
 using System;
 
 
-namespace Module.Activity
+namespace Logic.Activity
 {
     public class CallFunc : Activity
     {
