@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using Logic.Activity;
 using UnityEngine;
 
 
-namespace ModuleTest.Activity
+namespace LogicTest
 {
     public class ActivityTest : MonoBehaviour
     {
@@ -24,6 +23,8 @@ namespace ModuleTest.Activity
             });
 
             Debug.Log( activityController.CurrentActivity.PrintActivityTree(activityController));
+            
+            Game.Test();
         }
 
         private void Update()
@@ -37,6 +38,8 @@ namespace ModuleTest.Activity
                 activityController.CancelActivity();
             }
             activityController.Tick();
+            
+            Game.World.TickOuter();
         }
         
     }

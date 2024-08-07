@@ -1,0 +1,16 @@
+{
+    "name": "LogicTest",
+    "rootNamespace": "",
+    "references": [
+        "GUID:58d7a9f21d40f4f1985ea7e9b51544da"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
