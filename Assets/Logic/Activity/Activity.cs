@@ -3,19 +3,23 @@ using System.Linq;
 using System.Text;
 
 
-namespace Logic.Activity
+namespace Logic
 {
-    public interface IActivityInterface
+    public enum ActivityState
     {
-        
+        Queued,
+
+        Active,
+
+        Canceling,
+
+        Done
     }
-    
-    public enum ActivityState { Queued, Active, Canceling, Done }
 
     /// <summary>
     /// 活动抽象基类
     /// </summary>
-    public abstract class Activity : IActivityInterface
+    public abstract class Activity
     {
         public ActivityState State { get; private set; }
 
@@ -34,7 +38,7 @@ namespace Logic.Activity
             get => SkipDoneActivities(nextActivity);
             private set => nextActivity = value;
         }
-        
+
         internal static Activity SkipDoneActivities(Activity first)
         {
             while (first != null && first.State == ActivityState.Done)
@@ -48,38 +52,40 @@ namespace Logic.Activity
         public bool IsInterruptible { get; protected set; } = true;
 
         public bool ChildHasPriority { get; protected set; } = true;
-        
+
         public bool IsCanceling => State == ActivityState.Canceling;
 
         bool finishing;
+
         bool firstRunCompleted;
+
         bool lastRun;
 
-        internal Activity TickOuter(ActivityController controller)
+        internal Activity TickOuter(Entity entity)
         {
             if (State == ActivityState.Done)
-                throw new InvalidOperationException($"ActivityOwner {controller} 尝试Tick一个已经完成的活动 {GetType()} ");
+                throw new InvalidOperationException($"ActivityOwner {entity} 尝试Tick一个已经完成的活动 {GetType()} ");
 
             if (State == ActivityState.Queued)
             {
-                OnFirstRun(controller);
+                OnFirstRun(entity);
                 firstRunCompleted = true;
                 State = ActivityState.Active;
             }
 
             if (!firstRunCompleted)
             {
-                throw new InvalidOperationException($"ActivityOwner {controller} 尝试在OnFirstRun之前Tick活动 {GetType()}");
+                throw new InvalidOperationException($"ActivityOwner {entity} 尝试在OnFirstRun之前Tick活动 {GetType()}");
             }
 
             if (ChildHasPriority)
             {
-                lastRun = TickChild(controller) && (finishing || Tick(controller));
+                lastRun = TickChild(entity) && (finishing || Tick(entity));
                 finishing |= lastRun;
             }
             else
             {
-                lastRun = Tick(controller);
+                lastRun = Tick(entity);
             }
 
             var ca = ChildActivity;
@@ -87,38 +93,40 @@ namespace Logic.Activity
             {
                 if (ChildHasPriority)
                 {
-                    lastRun = TickChild(controller) && finishing;
+                    lastRun = TickChild(entity) && finishing;
                 }
                 else
                 {
-                    TickChild(controller);
+                    TickChild(entity);
                 }
             }
 
             if (lastRun)
             {
                 State = ActivityState.Done;
-                OnLastRun(controller);
+                OnLastRun(entity);
                 return NextActivity;
             }
 
             return this;
         }
 
-        protected bool TickChild(ActivityController controller)
+        protected bool TickChild(Entity entity)
         {
-            ChildActivity = controller.RunActivity(ChildActivity);
+            ChildActivity = entity.RunActivity(ChildActivity);
             return ChildActivity == null;
         }
-        
-        
+
+
         /// <summary>
         /// 在第一个Tick之前立即执行一次
         /// </summary>
-        /// <param name="controller"></param>
-        protected virtual void OnFirstRun(ActivityController controller) { }
+        /// <param name="entity"></param>
+        protected virtual void OnFirstRun(Entity entity)
+        {
+        }
 
-        
+
         /// <summary>
         /// 每帧调用来执行活动逻辑。返回false则表示活动仍需执行，返回true则代表活动执行完成
         /// 取消活动必须确保在返回true之前将ActivityOwner置回一致状态
@@ -128,28 +136,32 @@ namespace Logic.Activity
         ///
         /// 入队一个或多个活动并且立即返回完成是有效的，会使活动立即完成
         /// </summary>
-        protected virtual bool Tick(ActivityController controller)
+        protected virtual bool Tick(Entity entity)
         {
             return true;
         }
-        
+
         /// <summary>
         /// 在最后一次Tick完成之后立即执行一次
         /// </summary>
-        protected virtual void OnLastRun(ActivityController controller) { }
-     
+        protected virtual void OnLastRun(Entity entity)
+        {
+        }
+
         /// <summary>
         /// 当拥有者被销毁时调用一次
         /// </summary>
-        protected virtual void OnOwnerDispose(ActivityController controller) { }
-        
-        internal void OnOwnerDisposeOuter(ActivityController controller)
+        protected virtual void OnOwnerDispose(Entity entity)
         {
-            ChildActivity?.OnOwnerDisposeOuter(controller);
-            OnOwnerDispose(controller);
         }
 
-        public virtual void Cancel(ActivityController controller, bool keepQueue = false)
+        internal void OnOwnerDisposeOuter(Entity entity)
+        {
+            ChildActivity?.OnOwnerDisposeOuter(entity);
+            OnOwnerDispose(entity);
+        }
+
+        public virtual void Cancel(Entity entity, bool keepQueue = false)
         {
             if (!keepQueue)
             {
@@ -160,8 +172,8 @@ namespace Logic.Activity
             {
                 return;
             }
-            
-            ChildActivity?.Cancel(controller);
+
+            ChildActivity?.Cancel(entity);
 
             State = State == ActivityState.Queued ? ActivityState.Done : ActivityState.Canceling;
         }
@@ -177,6 +189,7 @@ namespace Logic.Activity
             {
                 it = it.nextActivity;
             }
+
             it.nextActivity = activity;
         }
 
@@ -195,13 +208,13 @@ namespace Logic.Activity
                 childActivity = activity;
             }
         }
-        
-        
-        public string PrintActivityTree(ActivityController controller, Activity origin = null, int level = 0)
+
+
+        public string PrintActivityTree(Entity entity, Activity origin = null, int level = 0)
         {
             if (origin == null)
             {
-                return controller.CurrentActivity.PrintActivityTree(controller,this);
+                return entity.CurrentActivity.PrintActivityTree(entity, this);
             }
             else
             {
@@ -215,13 +228,14 @@ namespace Logic.Activity
                 sb.AppendLine($"{GetType().ToString().Split('.').Last()}");
                 if (ChildActivity != null)
                 {
-                    sb.Append(ChildActivity.PrintActivityTree(controller, origin, level + 1));
+                    sb.Append(ChildActivity.PrintActivityTree(entity, origin, level + 1));
                 }
 
                 if (NextActivity != null)
                 {
-                    sb.Append(NextActivity.PrintActivityTree(controller, origin, level));
+                    sb.Append(NextActivity.PrintActivityTree(entity, origin, level));
                 }
+
                 return sb.ToString();
             }
         }

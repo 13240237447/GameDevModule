@@ -1,7 +1,7 @@
 using System;
 
 
-namespace Logic.Activity
+namespace Logic
 {
     public class CallFunc : Activity
     {
@@ -13,7 +13,7 @@ namespace Logic.Activity
             IsInterruptible = interruptible;
         }
 
-        protected override bool Tick(ActivityController controller)
+        protected override bool Tick(Entity entity)
         {
             a?.Invoke();
             return true;

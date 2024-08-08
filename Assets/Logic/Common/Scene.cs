@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 
 
 namespace Logic
@@ -17,31 +16,20 @@ namespace Logic
 
         private List<Entity> entities = new();
         
-        private List<ITick> ticks = new();
-
-        private List<ITickRender> renderTicks = new();
-
-        
-        public void AddEntity(Entity entity)
+        uint nextEntityId = 0;
+        internal uint NextEntityID()
         {
-            if (Disposed || entity.Disposed || entities.Contains(entity))
-            {
-                return;
-            }
-            entity.BindScene(this);
-            entities.Add(entity);
-            if (entity is ITick tick)
-            {
-                AddTick(tick);
-            }
+            return nextEntityId++;
+        }
 
-            if (entity is ITickRender tickRender)
-            {
-                AddTickRender(tickRender);
-            }
+        public Entity CreateEntity(List<Activity> creationActivity = null)
+        {
+            var entity = new Entity(this,creationActivity);
+            entities.Add(entity);
+            return entity;
         }
         
-        public void RemoveEntity(Entity entity)
+        public void DestroyEntity(Entity entity)
         {
             if (Disposed || entity.Disposed || !entities.Contains(entity))
             {
@@ -49,51 +37,6 @@ namespace Logic
             }
             entity.UnBindScene(this);
             entities.Remove(entity);
-            if (entity is ITick tick)
-            {
-                RemoveTick(tick);
-            }
-            if (entity is ITickRender tickRender)
-            {
-                RemoveTickRender(tickRender);
-            }
-        }
-
-        public void AddTick(ITick tick)
-        {
-            if (ticks.Contains(tick))
-            {
-                return;
-            }
-            ticks.Add(tick);
-        }
-
-        public void RemoveTick(ITick tick)
-        {
-            if (!ticks.Contains(tick))
-            {
-                return;
-            }
-            ticks.Remove(tick);
-        }
-        
-        
-        public void AddTickRender(ITickRender tick)
-        {
-            if (renderTicks.Contains(tick))
-            {
-                return;
-            }
-            renderTicks.Add(tick);
-        }
-
-        public void RemoveTickRender(ITickRender tick)
-        {
-            if (!renderTicks.Contains(tick))
-            {
-                return;
-            }
-            renderTicks.Remove(tick);
         }
         
         internal void Tick()
@@ -103,7 +46,7 @@ namespace Logic
                 return;
             }
 
-            ticks.ToList().ForEach(s=>s.Tick());
+            entities.ToList().ForEach(s=>s.Tick());
             
             while (frameEndActions.Count != 0)
                 frameEndActions.Dequeue()(this);
@@ -115,8 +58,6 @@ namespace Logic
             {
                 return;
             }
-            
-            renderTicks.ToList().ForEach(s=>s.TickRender());
         }
         
         public void AddEndFrameAction(Action<Scene> action)
@@ -145,7 +86,6 @@ namespace Logic
             
             Disposed = true;
             frameEndActions = null;
-            ticks = null;
             entities = null;
         }
     }

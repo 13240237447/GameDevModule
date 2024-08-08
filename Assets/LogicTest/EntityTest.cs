@@ -1,23 +1,26 @@
+using System.Collections.Generic;
 using Logic;
 using UnityEngine;
 
 
 namespace LogicTest
 {
-    public class DataEntity : Entity, ITick
+    public class DataEntity : Activity
     {
         public int Num { private set; get; }
-        public void Tick()
+        
+        protected override bool Tick(Entity entity)
         {
-            Num++;
-            if (Num >= 100)
+            if (Num < 100)
             {
-                Scene.RemoveEntity(this);
+                Num++;
+                return false;
             }
+            return true;
         }
     }
     
-    public class RenderEntity : Entity, ITickRender
+    public class RenderEntity 
     {
         private DataEntity dataEntity;
         

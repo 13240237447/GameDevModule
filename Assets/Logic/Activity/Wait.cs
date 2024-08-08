@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 
-namespace Logic.Activity
+namespace Logic
 {
     public class Wait : Activity
     {
@@ -21,7 +21,7 @@ namespace Logic.Activity
             IsInterruptible = canInterruptible;
         }
 
-        protected override bool Tick(ActivityController controller)
+        protected override bool Tick(Entity entity)
         {
             if (IsCanceling)
             {
@@ -33,6 +33,7 @@ namespace Logic.Activity
         }
     }
 
+    
     public class WaitFor : Activity
     {
         private readonly Func<bool> f;
@@ -47,7 +48,7 @@ namespace Logic.Activity
             IsInterruptible = canInterruptible;
         }
 
-        protected override bool Tick(ActivityController controller)
+        protected override bool Tick(Entity entity)
         {
             if (IsCanceling)
             {

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Logic.Activity;
+using Logic;
 using UnityEngine;
 
 
@@ -7,12 +7,17 @@ namespace LogicTest
 {
     public class ActivityTest : MonoBehaviour
     {
-        private ActivityController activityController;
+        private Entity activityController;
 
         private bool isActivityStop;
+        
         private void Awake()
         {
-            activityController = new ActivityController(new List<Logic.Activity.Activity>()
+            TestScene scene = new TestScene();
+            DataEntity dataEntity = new DataEntity();
+            RenderEntity renderEntity = new RenderEntity(dataEntity);
+            Game.World.AddScene(scene);
+            activityController = scene.CreateEntity(new List<Activity>()
             {
                 new CallFunc(() => { Debug.Log("Activity Start"); },false),
                 new Wait(3,false),
@@ -22,9 +27,8 @@ namespace LogicTest
                 new CallFunc(() => { Debug.Log("Activity End"); },false),
             });
 
-            Debug.Log( activityController.CurrentActivity.PrintActivityTree(activityController));
-            
-            Game.Test();
+            Debug.Log(activityController.CurrentActivity.PrintActivityTree(activityController));
+       
         }
 
         private void Update()
