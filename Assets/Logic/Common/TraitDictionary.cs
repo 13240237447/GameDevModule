@@ -72,8 +72,8 @@ namespace Logic
         
         public void AddTrait(Entity entity, object val)
         {
+            CheckDestroyed(entity);
             var t = val.GetType();
-
             foreach (var i in t.GetInterfaces())
                 InnerAdd(entity, i, val);
             foreach (var tt in t.BaseTypes())
@@ -88,6 +88,7 @@ namespace Logic
         
         public void RemoveActor(Entity entity)
         {
+            CheckDestroyed(entity);
             foreach (var t in traits)
                 t.Value.RemoveEntity(entity.EntityId);
         }

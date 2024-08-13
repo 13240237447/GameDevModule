@@ -14,10 +14,12 @@ namespace LogicTest
         private void Awake()
         {
             TestScene scene = new TestScene();
-            DataEntity dataEntity = new DataEntity();
-            RenderEntity renderEntity = new RenderEntity(dataEntity);
+            RegenerationTrait regenerationTrait = new RegenerationTrait();
+            HealthTraitRender healthTraitRender = new HealthTraitRender();
+            HealthTraitInfo healthTraitInfo = new HealthTraitInfo();
+            EntityInfo entityInfo = new EntityInfo(new List<TraitInfo>(){healthTraitInfo});
             Game.World.AddScene(scene);
-            activityController = scene.CreateEntity(new List<Activity>()
+            activityController = scene.CreateEntity(entityInfo,new List<Activity>()
             {
                 new CallFunc(() => { Debug.Log("Activity Start"); },false),
                 new Wait(3,false),
@@ -25,10 +27,12 @@ namespace LogicTest
                 new Wait(2,false),
                 new WaitFor(()=>isActivityStop),
                 new CallFunc(() => { Debug.Log("Activity End"); },false),
+            },new List<ITrait>()
+            {
+                regenerationTrait,
+                healthTraitRender,
             });
-
             Debug.Log(activityController.CurrentActivity.PrintActivityTree(activityController));
-       
         }
 
         private void Update()
@@ -41,8 +45,7 @@ namespace LogicTest
             {
                 activityController.CancelActivity();
             }
-            activityController.Tick();
-            
+            // activityController.Tick();
             Game.World.TickOuter();
         }
         

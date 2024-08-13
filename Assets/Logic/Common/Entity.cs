@@ -22,9 +22,12 @@ namespace Logic
 
         public bool IsIdle => CurrentActivity == null;
         
+        public EntityInfo Info { private set; get; }
         
-        internal Entity(Scene scene,List<Activity> creationActivity = null) 
+        
+        internal Entity(EntityInfo info,Scene scene,List<Activity> creationActivity = null,List<ITrait> traits = null)
         {
+            Info = info;
             EntityId = scene.NextEntityID();
             Scene = scene;
             if (creationActivity != null)

@@ -15,17 +15,27 @@ namespace Logic
         public bool Disposed { get; private set; }
 
         private List<Entity> entities = new();
+
+        private TraitDictionary traitDictionary = new();
         
         uint nextEntityId = 0;
+        
         internal uint NextEntityID()
         {
             return nextEntityId++;
         }
 
-        public Entity CreateEntity(List<Activity> creationActivity = null)
+        public Entity CreateEntity(EntityInfo info,List<Activity> creationActivity = null,List<ITrait> traits = null)
         {
-            var entity = new Entity(this,creationActivity);
+            var entity = new Entity(info,this,creationActivity);
             entities.Add(entity);
+            if (traits != null)
+            {
+                foreach (var trait in traits)
+                {
+                    traitDictionary.AddTrait(entity,trait);
+                }
+            }
             return entity;
         }
         
@@ -37,6 +47,7 @@ namespace Logic
             }
             entity.UnBindScene(this);
             entities.Remove(entity);
+            traitDictionary.RemoveActor(entity);
         }
         
         internal void Tick()
@@ -48,6 +59,11 @@ namespace Logic
 
             entities.ToList().ForEach(s=>s.Tick());
             
+            traitDictionary.ApplyToActorsWithTrait<ITraitTick>((s, r) =>
+            {
+                r.Tick(s);
+            });
+            
             while (frameEndActions.Count != 0)
                 frameEndActions.Dequeue()(this);
         }
@@ -58,6 +74,11 @@ namespace Logic
             {
                 return;
             }
+
+            traitDictionary.ApplyToActorsWithTrait<ITraitRenderTick>((s, r) =>
+            {
+                r.RenderTick(s);
+            });
         }
         
         public void AddEndFrameAction(Action<Scene> action)

@@ -5,35 +5,33 @@ using UnityEngine;
 
 namespace LogicTest
 {
-    public class DataEntity : Activity
+    public class RegenerationTrait : ITrait,ITraitTick
     {
-        public int Num { private set; get; }
-        
-        protected override bool Tick(Entity entity)
+        public void Tick(Entity entity)
         {
-            if (Num < 100)
+            var health = entity.Info.TraitInfo<HealthTraitInfo>();
+            if (health.value < 100)
             {
-                Num++;
-                return false;
+                health.value++;
             }
-            return true;
         }
     }
-    
-    public class RenderEntity 
+
+    public class HealthTraitInfo : TraitInfo
     {
-        private DataEntity dataEntity;
-        
-        public RenderEntity(DataEntity dataEntity)
+        public int value;
+    }
+    
+    public class HealthTraitRender : ITrait, ITraitRenderTick
+    {
+        private int lastHealth = -1;
+        public void RenderTick(Entity entity)
         {
-            this.dataEntity = dataEntity;
-        }
-        
-        public void TickRender()
-        {
-            if (dataEntity != null)
+            var health = entity.Info.TraitInfo<HealthTraitInfo>().value;
+            if (health != lastHealth)
             {
-                Debug.Log($"{dataEntity.Num} {Time.frameCount}");
+                lastHealth = health;
+                Debug.Log($"{health} {Time.frameCount}");
             }
         }
     }
