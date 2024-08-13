@@ -7,7 +7,7 @@ namespace LogicTest
 {
     public class ActivityTest : MonoBehaviour
     {
-        private Entity activityController;
+        private Entity entity1;
 
         private bool isActivityStop;
         
@@ -19,7 +19,7 @@ namespace LogicTest
             HealthTraitInfo healthTraitInfo = new HealthTraitInfo();
             EntityInfo entityInfo = new EntityInfo(new List<TraitInfo>(){healthTraitInfo});
             Game.World.AddScene(scene);
-            activityController = scene.CreateEntity(entityInfo,new List<Activity>()
+            entity1 = scene.CreateEntity(entityInfo,new List<Activity>()
             {
                 new CallFunc(() => { Debug.Log("Activity Start"); },false),
                 new Wait(3,false),
@@ -32,7 +32,7 @@ namespace LogicTest
                 regenerationTrait,
                 healthTraitRender,
             });
-            Debug.Log(activityController.CurrentActivity.PrintActivityTree(activityController));
+            Debug.Log(entity1.CurrentActivity.PrintActivityTree(entity1));
         }
 
         private void Update()
@@ -43,7 +43,7 @@ namespace LogicTest
             }
             else if (Input.GetKeyDown(KeyCode.F))
             {
-                activityController.CancelActivity();
+                entity1.CancelActivity();
             }
             // activityController.Tick();
             Game.World.TickOuter();
